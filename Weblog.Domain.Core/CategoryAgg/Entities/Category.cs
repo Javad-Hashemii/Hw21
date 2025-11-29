@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Weblog.Domain.Core.PostAgg.Entities;
+﻿using Weblog.Domain.Core.PostAgg.Entities;
 
 namespace Weblog.Domain.Core.CategoryAgg.Entities
 {

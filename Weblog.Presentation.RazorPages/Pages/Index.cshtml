@@ -5,8 +5,8 @@
 }
 
 <div class="text-center mb-5">
-    <h1 class="display-4">Welcome to Weblog</h1>
-    <p>Read about the latest trends, thoughts, and stories.</p>
+    <h1 class="display-4">به مکتب بلاگ خوش آمدید.</h1>
+    <p>راجب هرچیزی دوست داری بلاگ درست کن و با بقیه به اشتراک بزار.</p>
 </div>
 
 <div class="container">
@@ -49,7 +49,7 @@
                     <div class="card h-100 shadow-sm">
                         <!-- Image Handling -->
                         @{
-                            var cover = post.CoverImageUrl;
+                            var cover = post.ImageUrl;
                             var isAbsolute = !string.IsNullOrWhiteSpace(cover) && (cover.StartsWith("http://") || cover.StartsWith("https://"));
                             var imageSrc = isAbsolute ? cover : (!string.IsNullOrWhiteSpace(cover) ? $"/{cover}" : null);
                         }
@@ -76,7 +76,7 @@
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">@post.PublishedDate.ToString("yyyy/MM/dd")</small>
                             <!-- Link to Details Page (We will build this next) -->
-                            <a asp-page="/Blog/Details" asp-route-id="@post.Id" class="btn btn-outline-primary btn-sm">Read More</a>
+                            <a asp-page="/Blog/Details" asp-route-id="@post.Id" class="btn btn-outline-primary btn-sm">جزییات</a>
                         </div>
                     </div>
                 </div>

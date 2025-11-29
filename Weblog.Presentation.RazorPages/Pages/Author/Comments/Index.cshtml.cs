@@ -2,10 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Weblog.Domain.Core.PostAgg.Contracts.Service;
+using Weblog.Domain.Core.PostAgg.Contracts.AppService;
 using Weblog.Domain.Core.PostAgg.Dtos;
 using Weblog.Domain.Core.PostAgg.Entities;
 using Weblog.Infra.Db.SqlServer.EfCore;
@@ -13,8 +10,7 @@ using Weblog.Infra.Db.SqlServer.EfCore;
 namespace Weblog.Presentation.RazorPages.Pages.Author.Comments
 {
     [Authorize]
-    public class IndexModel(ICommentService _commentService,
-                            UserManager<ApplicationUser> _userManager) : PageModel
+    public class IndexModel(ICommentAppService _commentAppService, UserManager<ApplicationUser> _userManager) : PageModel
     {
         public List<ManageCommentDto> Comments { get; set; } = new();
 
@@ -27,9 +23,6 @@ namespace Weblog.Presentation.RazorPages.Pages.Author.Comments
         public async Task<IActionResult> OnGetAsync()
         {
             var userId = await GetUserIdAsync();
-            if (userId == null)
-                return Challenge();
-
             LoadComments(userId);
             return Page();
         }
@@ -38,11 +31,13 @@ namespace Weblog.Presentation.RazorPages.Pages.Author.Comments
         {
             var userId = await GetUserIdAsync();
             if (userId == null)
+            {
                 return Challenge();
+            }
 
             try
             {
-                _commentService.Approve(id, userId);
+                _commentAppService.Approve(id, userId);
                 StatusMessage = "کامنت تایید شد.";
             }
             catch (Exception ex)
@@ -57,11 +52,13 @@ namespace Weblog.Presentation.RazorPages.Pages.Author.Comments
         {
             var userId = await GetUserIdAsync();
             if (userId == null)
+            {
                 return Challenge();
+            }
 
             try
             {
-                _commentService.Reject(id, userId);
+                _commentAppService.Reject(id, userId);
                 StatusMessage = "کامنت رد شد.";
             }
             catch (Exception ex)
@@ -74,7 +71,7 @@ namespace Weblog.Presentation.RazorPages.Pages.Author.Comments
 
         private void LoadComments(string userId)
         {
-            Comments = _commentService.GetAuthorComments(userId, StatusFilter);
+            Comments = _commentAppService.GetAuthorComments(userId, StatusFilter);
         }
 
         private async Task<string?> GetUserIdAsync()

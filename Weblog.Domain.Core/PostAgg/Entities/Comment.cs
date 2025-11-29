@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-namespace Weblog.Domain.Core.PostAgg.Entities
+﻿namespace Weblog.Domain.Core.PostAgg.Entities
 {
     public class Comment
     {

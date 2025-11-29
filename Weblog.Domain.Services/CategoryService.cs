@@ -1,112 +1,109 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Weblog.Domain.Core.CategoryAgg.Contracts.Repository;
+﻿using Weblog.Domain.Core.CategoryAgg.Contracts.Repository;
 using Weblog.Domain.Core.CategoryAgg.Contracts.Service;
 using Weblog.Domain.Core.CategoryAgg.Dtos;
 using Weblog.Domain.Core.CategoryAgg.Entities;
 
 namespace Weblog.Domain.Services
 {
-    public class CategoryService(ICategoryRepository _repository):ICategoryService
+    public class CategoryService(ICategoryRepository _repository) : ICategoryService
     {
-        public int Create(CreateCategoryDto dto)
+        public int CreateCategory(CreateCategoryDto dto)
         {
-            // 1. Business Rule Check
-            // Note: Assuming Repo has the 3-param overload (userId, name, existingId)
-            // If your repo uses the 2-param version, pass 'null' or adjust accordingly.
-            if (_repository.IsNameExist(dto.UserId, dto.Name))
-                throw new Exception("You already have a category with this name.");
+            EnsureNameIsUnique(dto.UserId, dto.Name);
 
-            // 2. Map DTO -> Entity
             var category = new Category
             {
                 Name = dto.Name,
                 OwnerId = dto.UserId
             };
 
-            // 3. Persist
             return _repository.Add(category);
         }
 
-        public void Update(CreateCategoryDto dto)
+        public bool Update(CreateCategoryDto dto)
         {
-            // 1. Fetch existing for validation
-            // We use GetById from Repo (returns Entity) to check existence/ownership
-            var category = _repository.GetById(dto.Id);
+            var category = GetAndValidate(dto.Id, dto.UserId);
 
-            if (category == null)
-                throw new KeyNotFoundException("Category not found.");
+            EnsureNameIsUnique(dto.UserId, dto.Name);
 
-            if (category.OwnerId != dto.UserId)
-                throw new Exception("You do not have permission to edit this category.");
-
-            // 2. Business Rule Check (Name Uniqueness)
-            // We pass the current ID to exclude it from the check
-            if (_repository.IsNameExist(dto.UserId, dto.Name))
-            {
-                throw new Exception("You already have a category with this name.");
-            }
-
-            // 3. Map Changes
             category.Name = dto.Name;
 
-            // 4. Persist
-            _repository.Update(category);
+            var result = _repository.Update(category);
+            return result > 0;
         }
 
-        public void Delete(int id, string userId)
+
+        public bool Delete(int id, string userId)
+        {
+            var category = GetAndValidate(id, userId);
+
+            var result = _repository.Delete(id);
+            if (!result)
+            {
+                throw new Exception("خطا در حذف دسته بندی");
+            }
+
+            return result;
+        }
+
+        public CategoryDto GetCategoryById(int id)
         {
             var category = _repository.GetById(id);
-            if (category == null)
-                throw new Exception("Category not found.");
-
-            if (category.OwnerId != userId)
-                throw new Exception("You do not have permission to delete this category.");
-
-            var deleted = _repository.Delete(id);
-            if (!deleted)
-                throw new Exception("Could not delete category.");
+            return category == null ? null : MapToDto(category);
         }
 
-        public CategoryDto GetById(int id)
+        public List<CategoryDto> GetAllCategories()
         {
-            var category = _repository.GetById(id);
-            if (category == null) return null;
-
-            return new CategoryDto
-            {
-                Id = category.Id,
-                Name = category.Name,
-                OwnerId = category.OwnerId
-            };
+            return _repository.GetAllCategories()
+                              .Select(MapToDto)
+                              .ToList();
         }
 
-        public List<CategoryDto> GetAll()
+        public List<CategoryDto> GetCategoryByUserId(string userId)
         {
-            var categories = _repository.GetAll();
-            return categories.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                OwnerId = c.OwnerId
-            }).ToList();
-        }
-
-        public List<CategoryDto> GetByUserId(string userId)
-        {
-            var categories = _repository.GetByUserId(userId);
-            return categories.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                OwnerId = c.OwnerId
-            }).ToList();
+            return _repository.GetByUserId(userId)
+                              .Select(MapToDto)
+                              .ToList();
         }
 
         public bool IsCategoryNameUnique(string userId, string categoryName)
         {
             return _repository.IsNameExist(userId, categoryName);
+        }
+
+        private Category GetAndValidate(int id, string userId)
+        {
+            var category = _repository.GetById(id);
+
+            if (category == null)
+            {
+                throw new Exception("دسته بندی پیدا نشد");
+            }
+
+            if (category.OwnerId != userId)
+            {
+                throw new Exception("خطای دسترسی");
+            }
+
+            return category;
+        }
+
+        private void EnsureNameIsUnique(string userId, string name)
+        {
+            if (_repository.IsNameExist(userId, name))
+            {
+                throw new Exception("دسته بندی با این اسم از قبل وجود دارد");
+            }
+        }
+
+        private CategoryDto MapToDto(Category c)
+        {
+            return new CategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                OwnerId = c.OwnerId
+            };
         }
     }
 }

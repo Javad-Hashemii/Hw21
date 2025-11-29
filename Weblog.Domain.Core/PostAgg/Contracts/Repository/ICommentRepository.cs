@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Weblog.Domain.Core.PostAgg.Entities;
+﻿using Weblog.Domain.Core.PostAgg.Entities;
 
 namespace Weblog.Domain.Core.PostAgg.Contracts.Repository
 {
@@ -12,7 +9,7 @@ namespace Weblog.Domain.Core.PostAgg.Contracts.Repository
         List<Comment> GetByAuthor(string authorId);
 
         int Add(Comment comment);
-        void Update(Comment comment);
+        int Update(Comment comment);
         bool Delete(int id);
     }
 }

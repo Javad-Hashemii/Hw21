@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Weblog.Domain.Core.PostAgg.Dtos
+﻿namespace Weblog.Domain.Core.PostAgg.Dtos
 {
     public class ShowPostDto
     {
@@ -14,6 +10,6 @@ namespace Weblog.Domain.Core.PostAgg.Dtos
         public string AuthorId { get; set; }
         public DateTime PublishedDate { get; set; }
         public string CoverImageUrl { get; set; }
-        public List<string> ImageUrls { get; set; } = new List<string>();
+        public string? ImageUrl { get; set; }
     }
 }

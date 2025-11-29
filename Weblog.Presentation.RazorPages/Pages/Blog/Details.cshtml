@@ -3,7 +3,7 @@
 @using System.Linq
 @{
     ViewData["Title"] = Model.Post?.Title ?? "جزئیات پست";
-    var cover = Model.Post?.CoverImageUrl;
+    var cover = Model.Post?.ImageUrl;
     var isAbsolute = !string.IsNullOrWhiteSpace(cover) && (cover.StartsWith("http://") || cover.StartsWith("https://"));
     var imageSrc = isAbsolute ? cover : (!string.IsNullOrWhiteSpace(cover) ? $"/{cover}" : null);
 }

@@ -5,16 +5,16 @@ namespace Weblog.Presentation.RazorPages.ViewModels
     public class ChangePasswordViewModel
     {
 
-        [Required(ErrorMessage = "Email is required.")]
+        [Required(ErrorMessage = "ایمیل الزامی است")]
         [EmailAddress]
         public string Email { get; set; }
 
 
-        [Required(ErrorMessage = "Password is required.")]
+        [Required(ErrorMessage = "پسورد الزامی است.")]
         [StringLength(40, MinimumLength = 8, ErrorMessage = "The {0} must be at {2} and at max {1} charachters long")]
         [DataType(DataType.Password)]
         [Display(Name = "New Password")]
-        [Compare("ConfirmNewPassword", ErrorMessage = "Passwords don't match")]
+        [Compare("ConfirmNewPassword", ErrorMessage = "پسورد ها یکی نیستند")]
         public string NewPassword { get; set; }
 
 

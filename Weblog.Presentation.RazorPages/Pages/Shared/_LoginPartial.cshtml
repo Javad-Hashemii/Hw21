@@ -8,7 +8,7 @@
     {
         <li class="nav-item">
             <!-- Optional: Show the user's name or link to profile -->
-            <a class="nav-link text-dark" href="#">Hello @User.Identity?.Name!</a>
+            <a class="nav-link text-dark" href="#">سلام @User.Identity?.Name!</a>
         </li>
         <li class="nav-item">
             <a class="btn btn-outline-primary me-2" asp-page="/Author/Index">پنل نویسنده</a>
@@ -20,7 +20,7 @@
                 We use a form with a button styled as a link to match your original look.
             -->
             <form class="form-inline" asp-page="/Account/Logout" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark" style="cursor:pointer;">Logout</button>
+                <button type="submit" class="nav-link btn btn-link text-dark" style="cursor:pointer;">خروج</button>
             </form>
         </li>
     }
@@ -28,10 +28,10 @@
     {
         <li class="nav-item">
             <!-- LINK FIX: Use asp-page instead of asp-controller/asp-action -->
-            <a class="nav-link text-dark" asp-page="/Account/Login">Login</a>
+            <a class="nav-link text-dark" asp-page="/Account/Login">ورود</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-page="/Account/Register">Register</a>
+            <a class="nav-link text-dark" asp-page="/Account/Register">ثبت نام</a>
         </li>
     }
 </ul>

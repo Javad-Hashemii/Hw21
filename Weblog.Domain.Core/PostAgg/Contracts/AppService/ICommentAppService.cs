@@ -1,9 +1,12 @@
-﻿using Weblog.Domain.Core.PostAgg.Dtos;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Weblog.Domain.Core.PostAgg.Dtos;
 using Weblog.Domain.Core.PostAgg.Entities;
 
-namespace Weblog.Domain.Core.PostAgg.Contracts.Service
+namespace Weblog.Domain.Core.PostAgg.Contracts.AppService
 {
-    public interface ICommentService
+    public interface ICommentAppService
     {
         int AddComment(AddCommentDto dto, string? userId, string? userName);
         void Approve(int commentId, string authorId);

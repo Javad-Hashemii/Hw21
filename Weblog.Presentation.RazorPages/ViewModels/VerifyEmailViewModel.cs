@@ -4,7 +4,7 @@ namespace Weblog.Presentation.RazorPages.ViewModels
 {
     public class VerifyEmailViewModel
     {
-        [Required(ErrorMessage = "Email is required.")]
+        [Required(ErrorMessage = "ایمیل الزامی است")]
         [EmailAddress]
         public string Email { get; set; }
     }

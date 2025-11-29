@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Weblog.Domain.Core.CategoryAgg.Contracts.Service;
+﻿using Weblog.Domain.Core.CategoryAgg.Contracts.Service;
+using Weblog.Domain.Core.FileAgg.Contracts;
 using Weblog.Domain.Core.PostAgg.Contracts.Repository;
 using Weblog.Domain.Core.PostAgg.Contracts.Service;
 using Weblog.Domain.Core.PostAgg.Dtos;
@@ -11,139 +7,146 @@ using Weblog.Domain.Core.PostAgg.Entities;
 
 namespace Weblog.Domain.Services
 {
-    public class BlogPostService(IBlogRepository _repository, IBlogPostImageService _imageService, ICategoryService _categoryService) : IBlogPostService
+    public class BlogPostService(IBlogRepository _repository, ICategoryService _categoryService, IFileService _fileService) : IBlogPostService
     {
 
         public int Create(CreatePostDto dto)
         {
-            // 1. Validation
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                throw new ArgumentException("Title is required.");
+            ValidateTitle(dto.Title);
+            ValidateUser(dto.AuthorId);
+            EnsureUserOwnsCategory(dto.AuthorId, dto.CategoryId);
 
-            if (string.IsNullOrWhiteSpace(dto.AuthorId))
-                throw new UnauthorizedAccessException("Author ID is missing.");
+            string imagePath = _fileService.Upload(dto.ImageFile, "BlogImages");
 
-            // 2. Business Rule: Check Category Ownership
-            var category = _categoryService.GetById(dto.CategoryId);
-            if (category == null)
-                throw new KeyNotFoundException("Category not found.");
-
-            if (category.OwnerId != dto.AuthorId)
-                throw new UnauthorizedAccessException("You cannot post in a category you do not own.");
-
-            // 3. Map DTO -> Entity 
             var post = new BlogPost
             {
                 Title = dto.Title,
                 Text = dto.Text,
                 CategoryId = dto.CategoryId,
                 AuthorId = dto.AuthorId,
-                PublishedDate = DateTime.UtcNow
+                PublishedDate = DateTime.UtcNow,
+                ImageUrl = imagePath
             };
 
-            // 4. Persist Post to get the ID
-            int newPostId = _repository.Add(post);
-
-            // 5. Delegate Image Creation to ImageService
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
-            {
-                var filesToUpload = new List<IFormFile> { dto.ImageFile };
-                var storedPaths = _imageService.Create(newPostId, filesToUpload);
-                if (storedPaths.Any())
-                {
-                    post.ImageUrl = storedPaths.First(); //fuck
-                    post.Id = newPostId;
-                    _repository.Update(post);
-                }
-            }
-
-            return newPostId;
+            return _repository.Add(post);
         }
 
-        public void Update(UpdatePostDto dto)
+        public int Update(UpdatePostDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                throw new ArgumentException("Title is required.");
+            ValidateTitle(dto.Title);
+            ValidateUser(dto.AuthorId);
 
-            if (string.IsNullOrWhiteSpace(dto.AuthorId))
-                throw new UnauthorizedAccessException("Author ID is missing.");
-
-            var existing = _repository.GetById(dto.Id);
-            if (existing == null)
-                throw new KeyNotFoundException("Post not found.");
-
-            if (existing.AuthorId != dto.AuthorId)
-                throw new UnauthorizedAccessException("You do not have permission to edit this post.");
-
-            var category = _categoryService.GetById(dto.CategoryId);
-            if (category == null)
-                throw new KeyNotFoundException("Category not found.");
-
-            if (category.OwnerId != dto.AuthorId)
-                throw new UnauthorizedAccessException("You cannot move the post to a category you do not own.");
+            var existing = GetPostOrThrow(dto.Id);
+            EnsurePostOwner(existing, dto.AuthorId);
+            EnsureUserOwnsCategory(dto.AuthorId, dto.CategoryId);
 
             existing.Title = dto.Title;
             existing.Text = dto.Text;
             existing.CategoryId = dto.CategoryId;
+
             if (dto.PublishedDate.HasValue)
-                existing.PublishedDate = dto.PublishedDate.Value;
-
-            _repository.Update(existing);
-
-            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
             {
-                var filesToUpload = new List<IFormFile> { dto.ImageFile };
-                var storedPaths = _imageService.Create(existing.Id, filesToUpload);
-                if (storedPaths.Any())
-                {
-                    existing.ImageUrl = storedPaths.First(); //fuck
-                    _repository.Update(existing);
-                }
+                existing.PublishedDate = dto.PublishedDate.Value;
             }
-        }
 
-        public void Delete(int id, string userId)
+            if (dto.ImageFile != null)
+            {
+                existing.ImageUrl = _fileService.Upload(dto.ImageFile, "BlogImages");
+            }
+
+            int rowsAffected = _repository.Update(existing);
+
+            if (rowsAffected == 0)
+            {
+                throw new Exception("خطا در به‌روزرسانی پست");
+            }
+
+            return rowsAffected;
+        }
+        public int Delete(int id, string userId)
         {
-            var existing = _repository.GetById(id);
-            if (existing == null)
-                throw new KeyNotFoundException("Post not found.");
+            var existing = GetPostOrThrow(id);
+            EnsurePostOwner(existing, userId);
 
-            if (existing.AuthorId != userId)
-                throw new UnauthorizedAccessException("You do not have permission to delete this post.");
+            int rowsAffected = _repository.Delete(id);
 
-            if (!_repository.Delete(id))
-                throw new InvalidOperationException("Failed to delete post.");
+            if (rowsAffected == 0)
+            {
+                throw new Exception("خطا در حذف پست");
+            }
+
+            return rowsAffected;
         }
-
-        // --- Reads now return ShowPostDto ---
 
         public ShowPostDto GetById(int id)
         {
-            var post = _repository.GetById(id);
-            if (post == null) return null;
-
+            var post = GetPostOrThrow(id);
             return MapToDto(post);
         }
 
         public List<ShowPostDto> GetRecents(int count)
         {
-            var posts = _repository.GetRecents(count);
-            return posts.Select(MapToDto).ToList();
+            return _repository.GetRecents(count).Select(MapToDto).ToList();
         }
 
         public List<ShowPostDto> GetByCategory(int categoryId)
         {
-            var posts = _repository.GetByCategoryId(categoryId);
-            return posts.Select(MapToDto).ToList();
+            return _repository.GetByCategoryId(categoryId).Select(MapToDto).ToList();
         }
 
         public List<ShowPostDto> GetUserPosts(string userId)
         {
-            var posts = _repository.GetByUserId(userId);
-            return posts.Select(MapToDto).ToList();
+           return _repository.GetByUserId(userId).Select(MapToDto).ToList();
         }
 
-        // Helper for mapping Entity -> ShowPostDto
+        private void ValidateTitle(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new Exception("عنوان الزامی است");
+            }
+        }
+
+        private void ValidateUser(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new Exception("آیدی کاربر پیدا نشد");
+        }
+
+        private BlogPost GetPostOrThrow(int id)
+        {
+            var post = _repository.GetById(id);
+            if (post == null)
+            {
+                throw new Exception("پست پیدا نشد");
+            }
+
+            return post;
+        }
+
+        private void EnsurePostOwner(BlogPost post, string userId)
+        {
+            if (post.AuthorId != userId)
+            {
+                throw new Exception("خطای دسترسی");
+            }
+        }
+
+        private void EnsureUserOwnsCategory(string authorId, int categoryId)
+        {
+            var category = _categoryService.GetCategoryById(categoryId);
+
+            if (category == null)
+            {
+                throw new Exception("دسته بندی پیدا نشد");
+            }
+
+            if (category.OwnerId != authorId)
+            {
+                throw new Exception("خطای دسترسی");
+            }
+        }
+
         private static ShowPostDto MapToDto(BlogPost p)
         {
             return new ShowPostDto
@@ -155,10 +158,7 @@ namespace Weblog.Domain.Services
                 CategoryName = p.Category?.Name,
                 AuthorId = p.AuthorId,
                 PublishedDate = p.PublishedDate,
-                ImageUrls = p.Images?.Select(i => i.ImagePath).ToList() ?? new List<string>(),
-                CoverImageUrl = !string.IsNullOrWhiteSpace(p.ImageUrl) //fuck
-                    ? p.ImageUrl //fuck
-                    : p.Images?.Select(i => i.ImagePath).FirstOrDefault()
+                ImageUrl = p.ImageUrl
             };
         }
     }

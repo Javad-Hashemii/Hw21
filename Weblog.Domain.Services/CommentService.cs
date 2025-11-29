@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Weblog.Domain.Core.PostAgg.Contracts.Repository;
+﻿using Weblog.Domain.Core.PostAgg.Contracts.Repository;
 using Weblog.Domain.Core.PostAgg.Contracts.Service;
 using Weblog.Domain.Core.PostAgg.Dtos;
 using Weblog.Domain.Core.PostAgg.Entities;
@@ -12,15 +9,9 @@ namespace Weblog.Domain.Services
     {
         public int AddComment(AddCommentDto dto, string? userId, string? userName)
         {
-            var post = _postRepository.GetById(dto.BlogPostId);
-            if (post == null)
-                throw new KeyNotFoundException("Cannot add comment: Post not found.");
-
-            if (string.IsNullOrWhiteSpace(dto.Text))
-                throw new ArgumentException("Comment text is required.");
-
-            if (dto.Rating is < 1 or > 5)
-                throw new ArgumentException("Rating must be between 1 and 5.");
+            ValidatePostExists(dto.BlogPostId);
+            ValidateCommentText(dto.Text);
+            ValidateRating(dto.Rating);
 
             var comment = new Comment
             {
@@ -31,17 +22,21 @@ namespace Weblog.Domain.Services
                 Status = CommentStatus.Pending,
                 UserId = userId,
                 Name = ResolveAuthorName(dto, userId, userName),
-                Email = ResolveEmail(dto, userId)
+                Email = ResolveEmail(dto, userId, dto.GuestEmail)
             };
 
             return _repository.Add(comment);
         }
 
-        public void Approve(int commentId, string authorId) =>
+        public void Approve(int commentId, string authorId)
+        {
             UpdateStatus(commentId, authorId, CommentStatus.Approved);
+        }
 
-        public void Reject(int commentId, string authorId) =>
+        public void Reject(int commentId, string authorId)
+        {
             UpdateStatus(commentId, authorId, CommentStatus.Rejected);
+        }
 
         public List<ShowCommentDto> GetApprovedByPostId(int postId)
         {
@@ -60,7 +55,111 @@ namespace Weblog.Domain.Services
                 comments = comments.Where(c => c.Status == status.Value).ToList();
             }
 
-            return comments.Select(c => new ManageCommentDto
+            return comments.Select(MapToManageDto).ToList();
+        }
+
+        private void ValidatePostExists(int postId)
+        {
+            var post = _postRepository.GetById(postId);
+            if (post == null)
+            {
+                throw new Exception("پست پیدا نشد");
+            }
+        }
+
+        private void ValidateCommentText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new Exception("متن نظر الزامی است");
+            }
+        }
+
+        private void ValidateRating(int rating)
+        {
+            if (rating < 1 || rating > 5)
+            {
+                throw new Exception("Rating must be between 1 and 5.");
+            }
+        }
+
+        private static string ResolveAuthorName(AddCommentDto dto, string? userId, string? userName)
+        {
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                return !string.IsNullOrWhiteSpace(userName) ? userName : "Registered User";
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.GuestName))
+            {
+                throw new Exception("اسم برای مهمان ها اجباری است");
+            }
+
+            return dto.GuestName;
+        }
+
+        private static string ResolveEmail(AddCommentDto dto, string? userId, string? guestEmail)
+        {
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                return guestEmail;
+            }
+
+            if (string.IsNullOrWhiteSpace(guestEmail))
+            {
+                throw new Exception("ایمیل برای مهمان ها اجباری است");
+            }
+
+            return guestEmail;
+        }
+
+        private int UpdateStatus(int commentId, string authorId, CommentStatus newStatus)
+        {
+            if (string.IsNullOrWhiteSpace(authorId))
+            {
+                throw new Exception("آیدی کاربر پیدا نشد");
+            }
+
+            var comment = _repository.GetById(commentId);
+            if (comment == null)
+            {
+                throw new Exception("نظر پیدا نشد");
+            }
+
+            var post = comment.BlogPost ?? _postRepository.GetById(comment.BlogPostId);
+            if (post == null || post.AuthorId != authorId)
+            {
+                throw new Exception("خطای دسترسی");
+            }
+
+            comment.Status = newStatus;
+            int rowsAffected = _repository.Update(comment);
+
+            if (rowsAffected == 0)
+            {
+                throw new Exception("خطا در به‌روزرسانی نظر");
+            }
+
+            return rowsAffected;
+        }
+
+
+        private static ShowCommentDto ToShowDto(Comment comment)
+        {
+            return new ShowCommentDto
+            {
+                Id = comment.Id,
+                Text = comment.Text,
+                AuthorName = comment.Name,
+                CreatedDate = comment.CreatedAt,
+                Rating = comment.Rating,
+                Status = comment.Status
+            };
+        }
+
+        private static ManageCommentDto MapToManageDto(Comment c)
+        {
+            return new ManageCommentDto
             {
                 Id = c.Id,
                 PostId = c.BlogPostId,
@@ -71,58 +170,7 @@ namespace Weblog.Domain.Services
                 Rating = c.Rating,
                 CreatedAt = c.CreatedAt,
                 Status = c.Status
-            }).ToList();
+            };
         }
-
-        private static string ResolveAuthorName(AddCommentDto dto, string? userId, string? userName)
-        {
-            if (!string.IsNullOrWhiteSpace(userId))
-                return !string.IsNullOrWhiteSpace(userName) ? userName : "Registered User";
-
-            if (string.IsNullOrWhiteSpace(dto.GuestName))
-                throw new ArgumentException("Guest comments require a name.");
-
-            return dto.GuestName;
-        }
-
-        private static string? ResolveEmail(AddCommentDto dto, string? userId)
-        {
-            if (!string.IsNullOrWhiteSpace(userId))
-            {
-                return dto.GuestEmail; // optional for logged users (can be null)
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.GuestEmail))
-                throw new ArgumentException("Guest comments require an email.");
-
-            return dto.GuestEmail;
-        }
-
-        private void UpdateStatus(int commentId, string authorId, CommentStatus newStatus)
-        {
-            if (string.IsNullOrWhiteSpace(authorId))
-                throw new UnauthorizedAccessException("Author id is required.");
-
-            var comment = _repository.GetById(commentId);
-            if (comment == null)
-                throw new KeyNotFoundException("Comment not found.");
-
-            var post = comment.BlogPost ?? _postRepository.GetById(comment.BlogPostId);
-            if (post == null || post.AuthorId != authorId)
-                throw new UnauthorizedAccessException("You cannot moderate this comment.");
-
-            comment.Status = newStatus;
-            _repository.Update(comment);
-        }
-
-        private static ShowCommentDto ToShowDto(Comment comment) => new ShowCommentDto
-        {
-            Id = comment.Id,
-            Text = comment.Text,
-            AuthorName = comment.Name,
-            CreatedDate = comment.CreatedAt,
-            Rating = comment.Rating,
-            Status = comment.Status
-        };
     }
 }

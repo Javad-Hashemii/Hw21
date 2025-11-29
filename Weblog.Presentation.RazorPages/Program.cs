@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Weblog.Domain.Appservices;
+using Weblog.Domain.Core.CategoryAgg.Contracts.AppService;
 using Weblog.Domain.Core.CategoryAgg.Contracts.Repository;
 using Weblog.Domain.Core.CategoryAgg.Contracts.Service;
 using Weblog.Domain.Core.FileAgg.Contracts;
+using Weblog.Domain.Core.PostAgg.Contracts.AppService;
 using Weblog.Domain.Core.PostAgg.Contracts.Repository;
 using Weblog.Domain.Core.PostAgg.Contracts.Service;
 using Weblog.Domain.Services;
@@ -33,13 +36,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddScoped<IBlogRepository, BlogPostRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<IBlogPostImageRepository, BlogPostImageRepository>();
 
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IBlogPostService, BlogPostService>();
-builder.Services.AddScoped<IBlogPostImageService, BlogPostImageService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IFileService, FileService>();
+
+builder.Services.AddScoped<ICategoryAppService, CategoryAppService>();
+builder.Services.AddScoped<IBlogAppService,BlogPostAppService>();
+builder.Services.AddScoped<ICommentAppService, CommentAppService>();
 
 var app = builder.Build();
 

@@ -1,4 +1,3 @@
-using System;
 using Weblog.Domain.Core.PostAgg.Entities;
 
 namespace Weblog.Domain.Core.PostAgg.Dtos

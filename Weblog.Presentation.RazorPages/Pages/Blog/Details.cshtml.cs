@@ -1,20 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using Weblog.Domain.Core.PostAgg.Contracts.Service;
+using Weblog.Domain.Core.PostAgg.Contracts.AppService;
 using Weblog.Domain.Core.PostAgg.Dtos;
+using Weblog.Presentation.RazorPages.ViewModels;
 
 namespace Weblog.Presentation.RazorPages.Pages.Blog
 {
-    public class DetailsModel(IBlogPostService _blogPostService, ICommentService _commentService) : PageModel
+    public class DetailsModel(IBlogAppService _blogAppService, ICommentAppService _commentAppService) : PageModel
     {
         public ShowPostDto Post { get; set; }
         public List<ShowCommentDto> ApprovedComments { get; set; } = new();
 
         [BindProperty]
-        public CommentInput Input { get; set; } = new();
+        public CommentViewModel Input { get; set; } = new();
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -22,7 +21,9 @@ namespace Weblog.Presentation.RazorPages.Pages.Blog
         public IActionResult OnGet(int id)
         {
             if (!LoadData(id))
+            {
                 return NotFound();
+            }
 
             return Page();
         }
@@ -34,11 +35,14 @@ namespace Weblog.Presentation.RazorPages.Pages.Blog
 
             if (!User.Identity.IsAuthenticated)
             {
-                // guests must provide name + email
                 if (string.IsNullOrWhiteSpace(Input.Name))
+                {
                     ModelState.AddModelError(nameof(Input.Name), "نام را وارد کنید.");
+                }
                 if (string.IsNullOrWhiteSpace(Input.Email))
+                {
                     ModelState.AddModelError(nameof(Input.Email), "ایمیل را وارد کنید.");
+                }
             }
 
             if (!ModelState.IsValid)
@@ -61,7 +65,7 @@ namespace Weblog.Presentation.RazorPages.Pages.Blog
 
             try
             {
-                _commentService.AddComment(dto, userId, userName);
+                _commentAppService.AddComment(dto, userId, userName);
                 StatusMessage = "کامنت شما پس از تایید نمایش داده خواهد شد.";
                 return RedirectToPage(new { id });
             }
@@ -84,30 +88,15 @@ namespace Weblog.Presentation.RazorPages.Pages.Blog
 
         private bool LoadPost(int id)
         {
-            Post = _blogPostService.GetById(id);
+            Post = _blogAppService.GetById(id);
             return Post != null;
         }
 
         private void LoadComments(int id)
         {
-            ApprovedComments = _commentService.GetApprovedByPostId(id);
+            ApprovedComments = _commentAppService.GetApprovedByPostId(id);
         }
 
-        public class CommentInput
-        {
-            [Required(ErrorMessage = "امتیاز را وارد کنید.")]
-            [Range(1, 5)]
-            public int Rating { get; set; } = 5;
-
-            [Required(ErrorMessage = "متن کامنت الزامی است.")]
-            [MaxLength(1000, ErrorMessage = "حداکثر 1000 کاراکتر.")]
-            public string Message { get; set; }
-
-            public string? Name { get; set; }
-
-            [EmailAddress(ErrorMessage = "ایمیل معتبر نیست.")]
-            public string? Email { get; set; }
-        }
     }
 }
 

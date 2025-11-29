@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Weblog.Domain.Core.FileAgg.Contracts;
 
 namespace Weblog.Domain.Services

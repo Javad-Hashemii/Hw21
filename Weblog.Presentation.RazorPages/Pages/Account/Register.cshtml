@@ -8,24 +8,24 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-4">
-            <h2 class="text-center mb-4">Register</h2>
+            <h2 class="text-center mb-4">ثبت نام</h2>
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="mb-3">
-                    <label asp-for="Input.Name" class="form-label"></label>
+                    <label asp-for="Input.Name" class="form-label">نام</label>
                     <input asp-for="Input.Name" class="form-control" />
                     <span asp-validation-for="Input.Name" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Input.Email" class="form-label"></label>
+                    <label asp-for="Input.Email" class="form-label">ایمیل</label>
                     <input asp-for="Input.Email" class="form-control" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Input.Password" class="form-label"></label>
+                    <label asp-for="Input.Password" class="form-label">کلمه عبور</label>
                     <input asp-for="Input.Password" class="form-control" />
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
@@ -36,13 +36,13 @@
                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                 </div>
 
-                <input type="submit" value="Register" class="btn btn-success w-100 p-2" />
+                <input type="submit" value="ثبت نام" class="btn btn-success w-100 p-2" />
 
                 <p class="text-center mt-2">
-                    Have an account? <a asp-page="./Login" class="text-decoration-none">Login</a>
+                    ثبت نام کرده اید؟ <a asp-page="./Login" class="text-decoration-none">ورود</a>
                 </p>
                 <div class="text-center">
-                    <a asp-page="/Index" class="text-decoration-none mt-3">Back</a>
+                    <a asp-page="/Index" class="text-decoration-none mt-3">بازگشت</a>
                 </div>
             </form>
         </div>

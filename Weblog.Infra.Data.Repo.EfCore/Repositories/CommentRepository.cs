@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Weblog.Domain.Core.PostAgg.Contracts.Repository;
 using Weblog.Domain.Core.PostAgg.Entities;
 using Weblog.Infra.Db.SqlServer.EfCore;
@@ -13,18 +9,26 @@ namespace Weblog.Infra.Data.Repo.EfCore.Repositories
     {
         public int Add(Comment comment)
         {
-            dbContext.Comments.Add(comment);
-            dbContext.SaveChanges();
+            dbContext.Comments
+                .Add(comment);
+            dbContext
+                .SaveChanges();
             return comment.Id;
         }
 
         public bool Delete(int id)
         {
-            var comment = dbContext.Comments.Find(id);
-            if (comment == null) return false;
+            var comment = dbContext.Comments
+                .Find(id);
+            if (comment == null)
+            {
+                return false;
+            }
 
-            dbContext.Comments.Remove(comment);
-            return dbContext.SaveChanges() > 0;
+            dbContext.Comments
+                .Remove(comment);
+            return dbContext
+                .SaveChanges() > 0;
         }
 
         public Comment GetById(int id)
@@ -51,10 +55,10 @@ namespace Weblog.Infra.Data.Repo.EfCore.Repositories
                 .ToList();
         }
 
-        public void Update(Comment comment)
+        public int Update(Comment comment)
         {
             dbContext.Comments.Update(comment);
-            dbContext.SaveChanges();
+            return dbContext.SaveChanges();
         }
     }
 }

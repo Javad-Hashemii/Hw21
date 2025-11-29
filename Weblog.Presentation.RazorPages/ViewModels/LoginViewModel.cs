@@ -4,14 +4,14 @@ namespace Weblog.Presentation.RazorPages.ViewModels
 {
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "Email is required."),]
+        [Required(ErrorMessage = "ایمیل الزامی است."),]
         [EmailAddress]
         public string Email { get; set; }
-        [Required(ErrorMessage = "Password is required."),]
+        [Required(ErrorMessage = "پسورد الزامی است"),]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [Display(Name = "Remember me.")]
+        [Display(Name = "به خاطر بسپار")]
         public bool RememberMe { get; set; }
     }
 }

@@ -19,10 +19,9 @@ namespace Weblog.Presentation.RazorPages.Pages.Account
         {
             if (ModelState.IsValid)
             {
-                // Reusing your logic
                 var user = new ApplicationUser
                 {
-                    FullName = Input.Name, // Using the new property we added
+                    FullName = Input.Name,
                     Email = Input.Email,
                     UserName = Input.Email,
                 };
@@ -30,7 +29,6 @@ namespace Weblog.Presentation.RazorPages.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    // Redirect to Login as per your original controller logic
                     return RedirectToPage("./Login");
                 }
                 else

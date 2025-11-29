@@ -1,7 +1,7 @@
 ﻿@page
 @model Weblog.Presentation.RazorPages.Pages.Account.LoginModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "ورود";
     // I changed Layout to standard _Layout for now to ensure it works
     Layout = "/Pages/Shared/_Layout.cshtml";
 }
@@ -9,25 +9,25 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-4">
-            <h2 class="text-center mb-4">Login</h2>
+            <h2 class="text-center mb-4">ورود</h2>
             <form method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="mb-3">
-                    <label asp-for="Input.Email" class="form-label"></label>
+                    <label asp-for="Input.Email" class="form-label">ایمیل</label>
                     <input asp-for="Input.Email" class="form-control" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Input.Password" class="form-label"></label>
+                    <label asp-for="Input.Password" class="form-label">پسورد</label>
                     <input asp-for="Input.Password" class="form-control" />
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
 
                 <div class="float-end">
                     <!-- VerifyEmail not implemented yet, linking to Register for now -->
-                    <a asp-page="./Register" class="text-decoration-none">Forgot Password?</a>
+                    <a asp-page="./Register" class="text-decoration-none">کلمه عبور را فراموش کردم.</a>
                 </div>
 
                 <div class="form-check mb-3">
@@ -37,13 +37,13 @@
                     </label>
                 </div>
 
-                <input type="submit" value="Login" class="btn btn-success w-100 p-2" />
+                <input type="submit" value="ورود" class="btn btn-success w-100 p-2" />
 
                 <p class="text-center mt-2">
-                    Don't have an account? <a asp-page="./Register" class="text-decoration-none">Register</a>
+                    ثبت نام نکرده اید؟ <a asp-page="./Register" class="text-decoration-none">ثبت نام</a>
                 </p>
                 <div class="text-center">
-                    <a asp-page="/Index" class="text-decoration-none mt-3">Back</a>
+                    <a asp-page="/Index" class="text-decoration-none mt-3">بازگشت</a>
                 </div>
             </form>
         </div>

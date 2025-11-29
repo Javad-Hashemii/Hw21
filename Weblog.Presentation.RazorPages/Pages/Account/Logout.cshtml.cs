@@ -10,8 +10,6 @@ namespace Weblog.Presentation.RazorPages.Pages.Account
         public async Task<IActionResult> OnPostAsync()
         {
             await _signInManager.SignOutAsync();
-
-            // Redirect to Home page after logout
             return RedirectToPage("/Index");
         }
     }
