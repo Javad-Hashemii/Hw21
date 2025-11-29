@@ -12,8 +12,8 @@ using Weblog.Infra.Db.SqlServer.EfCore;
 namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251128123532_first")]
-    partial class first
+    [Migration("20251129181510_First-Migration")]
+    partial class FirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -178,26 +178,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Technology",
-                            OwnerId = "c7f338a6-8bc3-44aa-aa59-d475f5674419"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Lifestyle",
-                            OwnerId = "c7f338a6-8bc3-44aa-aa59-d475f5674419"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Coding",
-                            OwnerId = "c7f338a6-8bc3-44aa-aa59-d475f5674419"
-                        });
                 });
 
             modelBuilder.Entity("Weblog.Domain.Core.PostAgg.Entities.BlogPost", b =>
@@ -216,7 +196,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -240,65 +219,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("BlogPosts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AuthorId = "c7f338a6-8bc3-44aa-aa59-d475f5674419",
-                            CategoryId = 1,
-                            ImageUrl = "https://cdn.example.com/posts/welcome.jpg",
-                            PublishedDate = new DateTime(2023, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
-                            Text = "This is the first seeded post on the platform. Stay tuned for more updates!",
-                            Title = "Welcome to the Weblog"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AuthorId = "c7f338a6-8bc3-44aa-aa59-d475f5674419",
-                            CategoryId = 3,
-                            ImageUrl = "https://cdn.example.com/posts/why-csharp-is-awesome.jpg",
-                            PublishedDate = new DateTime(2023, 10, 5, 14, 30, 0, 0, DateTimeKind.Utc),
-                            Text = "C# offers a great balance between performance and developer productivity. LINQ is magic.",
-                            Title = "Why C# is Awesome"
-                        });
-                });
-
-            modelBuilder.Entity("Weblog.Domain.Core.PostAgg.Entities.BlogPostImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BlogPostId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ImagePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BlogPostId");
-
-                    b.ToTable("PostImages");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BlogPostId = 1,
-                            ImagePath = "https://cdn.example.com/posts/welcome.jpg"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BlogPostId = 2,
-                            ImagePath = "https://cdn.example.com/posts/why-csharp-is-awesome.jpg"
-                        });
                 });
 
             modelBuilder.Entity("Weblog.Domain.Core.PostAgg.Entities.Comment", b =>
@@ -346,31 +266,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                     b.HasIndex("BlogPostId");
 
                     b.ToTable("Comments");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BlogPostId = 1,
-                            CreatedAt = new DateTime(2023, 10, 2, 9, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "visitor@example.com",
-                            Name = "Guest Visitor",
-                            Rating = 5,
-                            Status = 1,
-                            Text = "Great introduction! Looking forward to more."
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BlogPostId = 2,
-                            CreatedAt = new DateTime(2023, 10, 6, 10, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "admin@weblog.com",
-                            Name = "System Admin",
-                            Rating = 5,
-                            Status = 1,
-                            Text = "I totally agree, LINQ makes life so much easier.",
-                            UserId = "c7f338a6-8bc3-44aa-aa59-d475f5674419"
-                        });
                 });
 
             modelBuilder.Entity("Weblog.Infra.Db.SqlServer.EfCore.ApplicationUser", b =>
@@ -504,17 +399,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Weblog.Domain.Core.PostAgg.Entities.BlogPostImage", b =>
-                {
-                    b.HasOne("Weblog.Domain.Core.PostAgg.Entities.BlogPost", "BlogPost")
-                        .WithMany("Images")
-                        .HasForeignKey("BlogPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BlogPost");
-                });
-
             modelBuilder.Entity("Weblog.Domain.Core.PostAgg.Entities.Comment", b =>
                 {
                     b.HasOne("Weblog.Domain.Core.PostAgg.Entities.BlogPost", "BlogPost")
@@ -534,8 +418,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
             modelBuilder.Entity("Weblog.Domain.Core.PostAgg.Entities.BlogPost", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

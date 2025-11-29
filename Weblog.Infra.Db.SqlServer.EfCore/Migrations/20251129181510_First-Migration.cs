@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
 {
     /// <inheritdoc />
-    public partial class first : Migration
+    public partial class FirstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -182,7 +180,7 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Text = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
                     PublishedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     AuthorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -221,63 +219,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                         principalTable: "BlogPosts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PostImages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ImagePath = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    BlogPostId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PostImages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PostImages_BlogPosts_BlogPostId",
-                        column: x => x.BlogPostId,
-                        principalTable: "BlogPosts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Categories",
-                columns: new[] { "Id", "Name", "OwnerId" },
-                values: new object[,]
-                {
-                    { 1, "Technology", "c7f338a6-8bc3-44aa-aa59-d475f5674419" },
-                    { 2, "Lifestyle", "c7f338a6-8bc3-44aa-aa59-d475f5674419" },
-                    { 3, "Coding", "c7f338a6-8bc3-44aa-aa59-d475f5674419" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "BlogPosts",
-                columns: new[] { "Id", "AuthorId", "CategoryId", "ImageUrl", "PublishedDate", "Text", "Title" },
-                values: new object[,]
-                {
-                    { 1, "c7f338a6-8bc3-44aa-aa59-d475f5674419", 1, "https://cdn.example.com/posts/welcome.jpg", new DateTime(2023, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc), "This is the first seeded post on the platform. Stay tuned for more updates!", "Welcome to the Weblog" },
-                    { 2, "c7f338a6-8bc3-44aa-aa59-d475f5674419", 3, "https://cdn.example.com/posts/why-csharp-is-awesome.jpg", new DateTime(2023, 10, 5, 14, 30, 0, 0, DateTimeKind.Utc), "C# offers a great balance between performance and developer productivity. LINQ is magic.", "Why C# is Awesome" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Comments",
-                columns: new[] { "Id", "BlogPostId", "CreatedAt", "Email", "Name", "Rating", "Status", "Text", "UserId" },
-                values: new object[,]
-                {
-                    { 1, 1, new DateTime(2023, 10, 2, 9, 0, 0, 0, DateTimeKind.Utc), "visitor@example.com", "Guest Visitor", 5, 1, "Great introduction! Looking forward to more.", null },
-                    { 2, 2, new DateTime(2023, 10, 6, 10, 0, 0, 0, DateTimeKind.Utc), "admin@weblog.com", "System Admin", 5, 1, "I totally agree, LINQ makes life so much easier.", "c7f338a6-8bc3-44aa-aa59-d475f5674419" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "PostImages",
-                columns: new[] { "Id", "BlogPostId", "ImagePath" },
-                values: new object[,]
-                {
-                    { 1, 1, "https://cdn.example.com/posts/welcome.jpg" },
-                    { 2, 2, "https://cdn.example.com/posts/why-csharp-is-awesome.jpg" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -328,11 +269,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
                 name: "IX_Comments_BlogPostId",
                 table: "Comments",
                 column: "BlogPostId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostImages_BlogPostId",
-                table: "PostImages",
-                column: "BlogPostId");
         }
 
         /// <inheritdoc />
@@ -355,9 +291,6 @@ namespace Weblog.Infra.Db.SqlServer.EfCore.Migrations
 
             migrationBuilder.DropTable(
                 name: "Comments");
-
-            migrationBuilder.DropTable(
-                name: "PostImages");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
