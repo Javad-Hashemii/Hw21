@@ -1,0 +1,104 @@
+﻿@page
+@model Weblog.Presentation.RazorPages.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4">Welcome to Weblog</h1>
+    <p>Read about the latest trends, thoughts, and stories.</p>
+</div>
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label for="categoryId" class="form-label">فیلتر بر اساس دسته بندی</label>
+                    <select class="form-select" id="categoryId" name="categoryId">
+                        <option value="">همه دسته بندی ها</option>
+                        @if (Model.Categories != null)
+                        {
+                            foreach (var category in Model.Categories)
+                            {
+                                <option value="@category.Id" selected="@(Model.CategoryId == category.Id ? "selected" : null)">
+                                    @category.Name
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">اعمال فیلتر</button>
+                </div>
+                @if (Model.CategoryId.HasValue)
+                {
+                    <div class="col-md-2">
+                        <a class="btn btn-outline-secondary w-100" asp-page="/Index">نمایش همه</a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        @if (Model.RecentPosts != null && Model.RecentPosts.Any())
+        {
+            @foreach (var post in Model.RecentPosts)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Image Handling -->
+                        @{
+                            var cover = post.CoverImageUrl;
+                            var isAbsolute = !string.IsNullOrWhiteSpace(cover) && (cover.StartsWith("http://") || cover.StartsWith("https://"));
+                            var imageSrc = isAbsolute ? cover : (!string.IsNullOrWhiteSpace(cover) ? $"/{cover}" : null);
+                        }
+                        @if (!string.IsNullOrWhiteSpace(imageSrc))
+                        {
+                            <img src="@imageSrc" class="card-img-top" alt="@post.Title" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span class="text-muted">No Image</span>
+                            </div>
+                        }
+
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">@post.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@post.CategoryName</h6>
+                            @{
+                                var summary = post.Text?.Length > 200 ? $"{post.Text.Substring(0, 200)}..." : post.Text;
+                            }
+                            <p class="card-text text-muted">@summary</p>
+                        </div>
+
+                        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                            <small class="text-muted">@post.PublishedDate.ToString("yyyy/MM/dd")</small>
+                            <!-- Link to Details Page (We will build this next) -->
+                            <a asp-page="/Blog/Details" asp-route-id="@post.Id" class="btn btn-outline-primary btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                @if (Model.CategoryId.HasValue)
+                {
+                    <h3 class="text-muted">پستی برای این دسته بندی یافت نشد.</h3>
+                }
+                else
+                {
+                    <h3 class="text-muted">No posts found.</h3>
+                    <p>Be the first to write something!</p>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-page="/Author/Posts/Create" class="btn btn-primary mt-2">Create a Post</a>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>

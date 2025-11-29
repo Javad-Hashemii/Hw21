@@ -1,0 +1,116 @@
+@page
+@model Weblog.Presentation.RazorPages.Pages.Author.Comments.IndexModel
+@using System.Linq
+@{
+    ViewData["Title"] = "مدیریت کامنت‌ها";
+    var statuses = Enum.GetValues(typeof(CommentStatus)).Cast<CommentStatus>();
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">مدیریت کامنت‌ها</h1>
+            <p class="text-muted mb-0">تمام کامنت‌های مربوط به پست‌های شما در این صفحه نمایش داده می‌شود.</p>
+        </div>
+        <a asp-page="/Author/Index" class="btn btn-outline-secondary">بازگشت به پنل</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-info">@Model.StatusMessage</div>
+    }
+
+    <form method="get" class="card mb-4">
+        <div class="card-body row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label" for="statusSelect">فیلتر وضعیت</label>
+                <select class="form-select" id="statusSelect" name="status">
+                    <option value="">همه وضعیت‌ها</option>
+                    @foreach (var status in statuses)
+                    {
+                        <option value="@status" selected="@(Model.StatusFilter == status ? "selected" : null)">
+                            @GetStatusTitle(status)
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">اعمال فیلتر</button>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Comments == null || !Model.Comments.Any())
+    {
+        <div class="alert alert-secondary">کامنتی یافت نشد.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>پست</th>
+                        <th>کاربر</th>
+                        <th>ایمیل</th>
+                        <th>امتیاز</th>
+                        <th>تاریخ</th>
+                        <th>وضعیت</th>
+                        <th class="text-end">اقدامات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var comment in Model.Comments)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@comment.PostTitle</strong>
+                                <div>
+                                    <a asp-page="/Blog/Details" asp-route-id="@comment.PostId" target="_blank">مشاهده پست</a>
+                                </div>
+                            </td>
+                            <td>@comment.CommenterName</td>
+                            <td>@comment.CommenterEmail</td>
+                            <td>@comment.Rating</td>
+                            <td>@comment.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>
+                                <span class="badge @GetStatusBadge(comment.Status)">
+                                    @GetStatusTitle(comment.Status)
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <form method="post" asp-page-handler="Approve" asp-route-id="@comment.Id" class="d-inline">
+                                    <input type="hidden" name="status" value="@Model.StatusFilter" />
+                                    <button type="submit" class="btn btn-sm btn-success" @(comment.Status == CommentStatus.Approved ? "disabled" : null)>تایید</button>
+                                </form>
+                                <form method="post" asp-page-handler="Reject" asp-route-id="@comment.Id" class="d-inline">
+                                    <input type="hidden" name="status" value="@Model.StatusFilter" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" @(comment.Status == CommentStatus.Rejected ? "disabled" : null)>رد</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@functions {
+    private string GetStatusTitle(CommentStatus status) => status switch
+    {
+        CommentStatus.Pending => "در انتظار تایید",
+        CommentStatus.Approved => "تایید شده",
+        CommentStatus.Rejected => "رد شده",
+        _ => status.ToString()
+    };
+
+    private string GetStatusBadge(CommentStatus status) => status switch
+    {
+        CommentStatus.Pending => "text-bg-warning",
+        CommentStatus.Approved => "text-bg-success",
+        CommentStatus.Rejected => "text-bg-danger",
+        _ => "text-bg-secondary"
+    };
+}
+

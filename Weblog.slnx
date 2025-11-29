@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/01.Domain/" />
+  <Folder Name="/src/01.Domain/AppService/">
+    <Project Path="Weblog.Domain.Appservices/Weblog.Domain.Appservices.csproj" Id="9b3e65d3-6332-4229-8c9c-9730311f0d41" />
+  </Folder>
+  <Folder Name="/src/01.Domain/Core/">
+    <Project Path="Weblog.Domain.Core/Weblog.Domain.Core.csproj" Id="68ca7d0b-95f7-4b99-b1d7-88597227c2e7" />
+  </Folder>
+  <Folder Name="/src/01.Domain/Service/">
+    <Project Path="Weblog.Domain.Services/Weblog.Domain.Services.csproj" Id="b1fa9254-cd70-4f9e-baae-4bf6a61abb7d" />
+  </Folder>
+  <Folder Name="/src/02.Infrastructure/" />
+  <Folder Name="/src/02.Infrastructure/DataAccess/">
+    <Project Path="Weblog.Infra.Data.Repo.EfCore/Weblog.Infra.Data.Repo.EfCore.csproj" Id="0c342d01-446b-4cee-b0a7-657b570a86d5" />
+  </Folder>
+  <Folder Name="/src/02.Infrastructure/Db/">
+    <Project Path="Weblog.Infra.Db.SqlServer.EfCore/Weblog.Infra.Db.SqlServer.EfCore.csproj" Id="524f9857-f2e4-49d4-be8a-45ac8fa389c3" />
+  </Folder>
+  <Folder Name="/src/03.Presentation/">
+    <Project Path="Weblog.Presentation.RazorPages/Weblog.Presentation.RazorPages.csproj" Id="b4906535-8038-47c5-abc8-57a623ea44a4" />
+  </Folder>
+</Solution>

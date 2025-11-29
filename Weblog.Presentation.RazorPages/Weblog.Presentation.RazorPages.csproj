@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Weblog.Domain.Appservices\Weblog.Domain.Appservices.csproj" />
+    <ProjectReference Include="..\Weblog.Domain.Core\Weblog.Domain.Core.csproj" />
+    <ProjectReference Include="..\Weblog.Domain.Services\Weblog.Domain.Services.csproj" />
+    <ProjectReference Include="..\Weblog.Infra.Data.Repo.EfCore\Weblog.Infra.Data.Repo.EfCore.csproj" />
+    <ProjectReference Include="..\Weblog.Infra.Db.SqlServer.EfCore\Weblog.Infra.Db.SqlServer.EfCore.csproj" />
+  </ItemGroup>
+
+</Project>

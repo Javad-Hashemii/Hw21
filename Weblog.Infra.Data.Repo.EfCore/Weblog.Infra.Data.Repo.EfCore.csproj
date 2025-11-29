@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Weblog.Domain.Core\Weblog.Domain.Core.csproj" />
+    <ProjectReference Include="..\Weblog.Infra.Db.SqlServer.EfCore\Weblog.Infra.Db.SqlServer.EfCore.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,55 @@
+@page
+@model Weblog.Presentation.RazorPages.Pages.Author.Posts.CreateModel
+@{
+    ViewData["Title"] = "ایجاد پست جدید";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">ایجاد پست جدید</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-warning">@Model.StatusMessage</div>
+    }
+
+    <form method="post" enctype="multipart/form-data" class="card shadow-sm">
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="Input.Title" class="form-label"></label>
+                <input asp-for="Input.Title" class="form-control" />
+                <span asp-validation-for="Input.Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.CategoryId" class="form-label">دسته‌بندی</label>
+                <select asp-for="Input.CategoryId" class="form-select">
+                    <option value="">انتخاب کنید...</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Text" class="form-label">متن اصلی</label>
+                <textarea asp-for="Input.Text" class="form-control" rows="8"></textarea>
+                <span asp-validation-for="Input.Text" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.ImageFile" class="form-label">تصویر شاخص (PNG/JPG تا ۲ مگابایت)</label>
+                <input asp-for="Input.ImageFile" class="form-control" accept=".png,.jpg,.jpeg" />
+                <span asp-validation-for="Input.ImageFile" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a asp-page="Index" class="btn btn-outline-secondary">بازگشت</a>
+            <button type="submit" class="btn btn-primary">ثبت پست</button>
+        </div>
+    </form>
+</div>
+
+<partial name="_ValidationScriptsPartial" />
+

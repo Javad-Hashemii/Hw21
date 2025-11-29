@@ -1,0 +1,58 @@
+@page
+@model Weblog.Presentation.RazorPages.Pages.Author.Posts.IndexModel
+@{
+    ViewData["Title"] = "مدیریت پست‌ها";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-0">مدیریت پست‌ها</h1>
+            <p class="text-muted mb-0">در این صفحه می‌توانید پست‌های خود را مشاهده، ویرایش یا حذف کنید.</p>
+        </div>
+        <a asp-page="/Author/Posts/Create" class="btn btn-primary">ایجاد پست جدید</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-info">@Model.StatusMessage</div>
+    }
+
+    @if (Model.Posts == null || !Model.Posts.Any())
+    {
+        <div class="alert alert-secondary">هنوز پستی ثبت نکرده‌اید.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>عنوان</th>
+                        <th>دسته‌بندی</th>
+                        <th>تاریخ انتشار</th>
+                        <th class="text-end">اقدامات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var post in Model.Posts)
+                    {
+                        <tr>
+                            <td>@post.Title</td>
+                            <td>@post.CategoryName</td>
+                            <td>@post.PublishedDate.ToString("yyyy/MM/dd")</td>
+                            <td class="text-end">
+                                <a asp-page="/Blog/Details" asp-route-id="@post.Id" class="btn btn-sm btn-outline-secondary" target="_blank">مشاهده</a>
+                                <a asp-page="/Author/Posts/Edit" asp-route-id="@post.Id" class="btn btn-sm btn-warning text-white">ویرایش</a>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@post.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('این پست حذف شود؟');">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+

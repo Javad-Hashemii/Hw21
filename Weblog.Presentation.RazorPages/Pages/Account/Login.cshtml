@@ -1,0 +1,55 @@
+﻿@page
+@model Weblog.Presentation.RazorPages.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+    // I changed Layout to standard _Layout for now to ensure it works
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <h2 class="text-center mb-4">Login</h2>
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label"></label>
+                    <input asp-for="Input.Email" class="form-control" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <input asp-for="Input.Password" class="form-control" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="float-end">
+                    <!-- VerifyEmail not implemented yet, linking to Register for now -->
+                    <a asp-page="./Register" class="text-decoration-none">Forgot Password?</a>
+                </div>
+
+                <div class="form-check mb-3">
+                    <label class="form-check-label">
+                        <input asp-for="Input.RememberMe" class="form-check-input" />
+                        @Html.DisplayNameFor(a => a.Input.RememberMe)
+                    </label>
+                </div>
+
+                <input type="submit" value="Login" class="btn btn-success w-100 p-2" />
+
+                <p class="text-center mt-2">
+                    Don't have an account? <a asp-page="./Register" class="text-decoration-none">Register</a>
+                </p>
+                <div class="text-center">
+                    <a asp-page="/Index" class="text-decoration-none mt-3">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

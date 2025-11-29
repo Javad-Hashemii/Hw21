@@ -1,0 +1,113 @@
+@page "{id:int}"
+@model Weblog.Presentation.RazorPages.Pages.Blog.DetailsModel
+@using System.Linq
+@{
+    ViewData["Title"] = Model.Post?.Title ?? "جزئیات پست";
+    var cover = Model.Post?.CoverImageUrl;
+    var isAbsolute = !string.IsNullOrWhiteSpace(cover) && (cover.StartsWith("http://") || cover.StartsWith("https://"));
+    var imageSrc = isAbsolute ? cover : (!string.IsNullOrWhiteSpace(cover) ? $"/{cover}" : null);
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+            {
+                <div class="alert alert-info">@Model.StatusMessage</div>
+            }
+
+            <div class="mb-4">
+                <h1 class="display-5 fw-bold">@Model.Post.Title</h1>
+                <div class="text-muted small">
+                    <span class="me-3">تاریخ انتشار: @Model.Post.PublishedDate.ToString("yyyy/MM/dd")</span>
+                    <span>دسته بندی: @Model.Post.CategoryName</span>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(imageSrc))
+            {
+                <div class="mb-4">
+                    <img src="@imageSrc" alt="@Model.Post.Title" class="img-fluid rounded shadow-sm" />
+                </div>
+            }
+
+            <article class="lead" style="white-space: pre-line;">
+                @Model.Post.Text
+            </article>
+
+            <hr class="my-5" />
+
+            <section class="mb-5">
+                <h3 class="mb-4">نظرات کاربران</h3>
+                @if (Model.ApprovedComments == null || !Model.ApprovedComments.Any())
+                {
+                    <p class="text-muted">هنوز کامنتی ثبت نشده است.</p>
+                }
+                else
+                {
+                    foreach (var comment in Model.ApprovedComments)
+                    {
+                        <div class="border rounded p-3 mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>@comment.AuthorName</strong>
+                                <small class="text-muted">@comment.CreatedDate.ToString("yyyy/MM/dd HH:mm")</small>
+                            </div>
+                            <div class="mb-2 text-warning">
+                                @for (int i = 0; i < comment.Rating; i++)
+                                {
+                                    <span>&#9733;</span>
+                                }
+                                @for (int i = comment.Rating; i < 5; i++)
+                                {
+                                    <span class="text-muted">&#9734;</span>
+                                }
+                            </div>
+                            <p class="mb-0">@comment.Text</p>
+                        </div>
+                    }
+                }
+            </section>
+
+            <section>
+                <h3 class="mb-3">ثبت نظر جدید</h3>
+                <form method="post" class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.Rating" class="form-label">امتیاز (1 تا 5)</label>
+                                <select asp-for="Input.Rating" class="form-select">
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Input.Rating" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.Name" class="form-label">نام و نام خانوادگی</label>
+                                <input asp-for="Input.Name" class="form-control" />
+                                <span asp-validation-for="Input.Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Input.Email" class="form-label">ایمیل</label>
+                                <input asp-for="Input.Email" class="form-control" />
+                                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Input.Message" class="form-label">متن کامنت</label>
+                                <textarea asp-for="Input.Message" class="form-control" rows="4"></textarea>
+                                <span asp-validation-for="Input.Message" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-end">
+                        <button type="submit" class="btn btn-primary">ارسال کامنت</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+
+<partial name="_ValidationScriptsPartial" />
+
